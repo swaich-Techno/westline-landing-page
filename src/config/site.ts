@@ -11,12 +11,12 @@ export interface SiteConfiguration {
 
 /** Add only confirmed business details. Empty optional fields stay unpublished. */
 export const site: SiteConfiguration = {
-  name: 'Westline Dispatch',
-  email: 'westline.dispatch365@gmail.com',
-  siteUrl: (import.meta.env.VITE_SITE_URL ?? '').trim().replace(/\/+$/, ''),
-  postalAddress: '',
-  operatingHours: '',
+  name: "Westline Dispatch",
+  email: "westline.dispatch365@gmail.com",
+  siteUrl: (import.meta.env.VITE_SITE_URL ?? "").trim().replace(/\/+$/, ""),
+  postalAddress: "",
+  operatingHours: "",
   teamLocations: [],
-  phone: '',
+  phone: "",
   socialLinks: [],
 };
