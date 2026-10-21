@@ -1,48 +1,79 @@
-# Deploy Westline Dispatch
+# Deploy and operate Westline Dispatch
 
-The target is Cloudflare Pages Free with the real `pages.dev` origin assigned to the project. This site builds to static files and requires no paid API, database, email service, or Pages Functions.
+The target is Cloudflare Pages with Workers Free and D1 Free allowances. Public pages are prerendered; the optional enquiry form uses a Pages worker and a D1 database. Email remains the primary contact channel. There is no paid email service, automated notification, or automatic sample delivery.
 
-## Required access and values
+## Current status — October 20, 2026
 
-- A Cloudflare account with access to create a Pages project.
-- For Git integration, access to authorize Cloudflare for `swaich-Techno/westline-landing-page` and a way to publish this source to that repository. The connector reported `push: false` during implementation setup; it cannot publish commits with that access.
-- The actual production HTTPS origin from the new Pages project, for `VITE_SITE_URL`. Do not guess a domain or copy a preview URL into the production configuration.
+The site is live at **https://westline-dispatch.pages.dev**. Pages project: `westline-dispatch`, production branch: `main`, deployment method: Direct Upload. D1 database: `westline-enquiries`, ID: `be765ed8-5596-47b9-8c61-d0b9f0ab9caf`, binding: `DB`. The migration and indexes were applied, then the site was redeployed with the binding. Both request types were saved through the public form and confirmed in D1. No paid plan was selected.
 
-The contact email is already configured as `westline.dispatch365@gmail.com`. Postal address, operating hours, team locations, phone, and social profiles are optional and remain omitted until confirmed by the business owner.
+For subsequent releases, build with `VITE_SITE_URL=https://westline-dispatch.pages.dev` and `RELEASE=true`, then upload the contents of `dist` through **Workers & Pages → westline-dispatch → Create deployment → Production**. GitHub pushes do not deploy automatically. Only upload built assets, never the source checkout or local database.
 
-## Recommended: Git integration
+Two synthetic launch-verification records remain in the database, both named `Westline deployment test` at `qa@example.com`, company `Fictional verification record`. They require no response. Their reference prefixes are `3e867fa0` (sample) and `013ed700` (enquiry).
 
-1. Publish this repository's source and lockfile to `swaich-Techno/westline-landing-page` using an authorized GitHub account. Preserve the separate Westline Office repository.
-2. In Cloudflare's Workers & Pages area, create a Pages application and connect that exact GitHub repository. Authorize only the repository access needed for this project.
-3. Select the intended production branch containing the reviewed source. Use the repository root as the build root, `npm run build` as the build command, and `dist` as the output directory. Use Node.js 22.12 or a newer supported LTS.
-4. Obtain the assigned production origin from the project dashboard. If project creation requires an initial deployment, treat that build as a bootstrap preview; it has no confirmed production SEO origin yet.
-5. Set the production build environment variables `VITE_SITE_URL` to that exact HTTPS origin and `RELEASE` to `true`. Rebuild and deploy the current source. The release gate prevents a build without a public HTTPS origin.
-6. Complete the verification below on the deployed URL before treating it as launched.
+## Account and database setup
 
-Cloudflare's Git integration deploys repository changes and supports branch previews. Set preview builds to the intended canonical production origin, rather than treating an ephemeral preview hostname as the canonical site. Configure preview access/indexing according to the project's sharing needs. See [Cloudflare's Git integration guide](https://developers.cloudflare.com/pages/configuration/git-integration/).
+1. Use the owner's Cloudflare account and Free plan. The production database and binding already exist as listed above; the steps below apply when recreating the environment. Preserve the separate Westline Office repository.
+2. Create a D1 database in that account. Record its actual name and identifier from the dashboard; none is preassigned in the source.
+3. Apply the complete `migrations/0001_enquiries.sql` file to the chosen database. The D1 console can execute its statements. With an authenticated Wrangler CLI, use `npx wrangler d1 execute DATABASE_NAME --remote --file=migrations/0001_enquiries.sql`, replacing `DATABASE_NAME` with the actual created name.
+4. In the Pages project's **Settings → Bindings**, add a D1 database binding named exactly `DB` and select that database. Redeploy after adding or changing the binding. Configure production and preview bindings separately; use a separate preview database for test enquiries. See [Cloudflare's D1 binding instructions](https://developers.cloudflare.com/pages/functions/bindings/#d1-databases).
+5. Confirm the `enquiries` table and its two indexes exist before enabling live submissions. The migration is idempotent for this initial schema; future schema changes require a new migration.
 
-## Alternative: direct upload
+The table contains `id`, `created_at` (UTC), `name`, `email`, `company`, `request_type`, and `message`. It has no IP-address or user-agent column. Database credentials are not browser configuration and must not be added to `VITE_` variables.
 
-Use direct upload when Git publishing is unavailable and the owner wants to manage builds locally. Cloudflare documents that a direct-upload project cannot later switch to Git integration; that change requires a new project. See the [direct-upload guide](https://developers.cloudflare.com/pages/get-started/direct-upload/).
+## Build and publish
 
-1. Sign in to Cloudflare and create a Pages direct-upload project, then obtain its assigned production origin. If an initial upload is required to establish the project, replace it with the release build below before launch.
-2. Install dependencies locally with `npm install`, then run `npm run typecheck`.
-3. Set `VITE_SITE_URL` to the actual assigned HTTPS origin and `RELEASE=true` in the shell environment. Run `npm run build`. Do not substitute an invented project address.
-4. Upload the complete `dist` folder using the Pages dashboard. Alternatively, use an authenticated Wrangler CLI to deploy `dist` to the exact project just created. Do not upload the source tree, `node_modules`, or environment files.
-5. Verify the production URL and record the project name, origin, source commit, and deployed build date for future updates.
+Use Node.js 22.12 or a newer supported LTS. Run the typecheck, endpoint tests, production build, and `npm run test:build` before deploying. The build root is the repository root, the command is `npm run build`, and the output directory is `dist`.
 
-## Release verification
+The output must include the prerendered pages, assets, `dist/_worker.js`, and `dist/_routes.json`. The compiled worker implements `/api/enquiries`; the routes file invokes it for `/api/*`, leaving ordinary pages and assets static. Cloudflare's advanced mode uses the compiled worker rather than separately compiling the source `functions/` directory. See [advanced mode](https://developers.cloudflare.com/pages/functions/advanced-mode/).
 
-- Open `/`, `/privacy/`, and `/terms/` directly. Refresh both legal routes to confirm that they are served independently.
-- Read the built HTML or disable JavaScript and confirm substantive copy is present. Re-enable JavaScript and verify navigation, FAQs, all handover filters, and expanded records.
-- Check layouts at 320, 390, 768, and 1440 pixels, keyboard-only navigation, visible focus, mobile-menu dismissal, zoom, and reduced motion.
-- Verify every navigation anchor and legal link. Inspect the decoded `mailto:` recipient, subject, and body without sending messages; they must use `westline.dispatch365@gmail.com`.
-- Confirm both fictional-data labels remain visible, no unverified claims or empty placeholders appear, and client approval boundaries remain clear.
-- Inspect page-specific titles, descriptions, canonical URLs, and Open Graph image URLs. Check `sitemap.xml` and `robots.txt`; all production URLs must use the exact assigned origin.
-- Keep analytics, paid upgrades, and new data-collection features disabled unless separately requested. Reassess the Privacy Policy before introducing any collection feature.
+Set `VITE_SITE_URL` to the actual assigned production HTTPS origin and `RELEASE=true` for the release build. If a first upload is needed to obtain the project address, treat it as a bootstrap preview, then rebuild with the confirmed origin. Preview builds without an origin are noindex and omit an invented canonical address. Never substitute a guessed domain or ephemeral deployment URL for the production origin.
 
-## Updates and recovery
+### Git integration
 
-Retain the source commit corresponding to each verified deployment. For Git integration, publish the reviewed change through the repository and inspect the resulting deployment. For direct upload, rebuild from the retained source with the same production origin before uploading. If an update fails validation, use Cloudflare's deployment history to restore the last verified version, then correct and rebuild the source.
+1. Push the reviewed enquiry integration and lockfile to the repository's intended production branch.
+2. Create or select a Pages project connected to that repository. Set the build command, output directory, Node version, and production environment variables as described above.
+3. Complete the migration and `DB` binding, then trigger a fresh deployment.
+4. Verify the actual deployment before marking it launched. Git integration supports automatic deployments and branch previews; configure preview origin/indexing and a separate database deliberately. See [Cloudflare's Git integration guide](https://developers.cloudflare.com/pages/configuration/git-integration/).
 
-Change `VITE_SITE_URL` and rebuild if the public origin changes. Keep production metadata, sitemap URLs, and documented deployment status aligned with the actual site. A successful local build alone does not establish that the website has been published.
+### Direct upload
+
+1. Create or select the intended direct-upload Pages project in the authenticated account and record its actual origin.
+2. Build locally with the actual origin and release flag. Confirm that `_worker.js` and `_routes.json` are present at the top level of `dist`.
+3. Upload the complete `dist` directory through the Pages dashboard, or deploy it with an authenticated Wrangler CLI. Do not upload the source tree, `node_modules`, or environment files.
+4. Apply the migration, bind `DB`, and redeploy so the worker receives the binding.
+5. Verify the final deployment and record its project name, origin, source commit, and date.
+
+Dashboard upload does not compile a source `functions/` folder, which is why this build includes `_worker.js`. Cloudflare supports that precompiled worker for direct upload. A direct-upload project cannot later switch to Git integration; create a new project for that change. See the [direct-upload guide](https://developers.cloudflare.com/pages/get-started/direct-upload/).
+
+## Review and follow up on requests
+
+There is no automatic inbox notification. The owner must review stored requests through the authenticated Cloudflare account and reply manually from the business email account.
+
+Open the bound D1 database's console and run:
+
+```sql
+SELECT id, created_at, name, email, company, request_type, message
+FROM enquiries
+ORDER BY created_at DESC
+LIMIT 100;
+```
+
+`sample` means a sample handover was requested; `enquiry` means the visitor wants to discuss operations support. Times are UTC. The success screen shows the first eight characters of the record's identifier as a reference. Use the full identifier when managing a specific record. There is no public endpoint for reading or deleting records. The console supports SQL queries; see [Cloudflare's SQL guide](https://developers.cloudflare.com/d1/sql-api/sql-statements/).
+
+Keep enquiry details in the owner's authorized systems. For an access, correction, or deletion request, verify the relevant record and requester, then manage only that record through the Cloudflare account. No automatic retention cleanup is configured. Review retained enquiries according to the Privacy Policy and the business's actual needs; do not invent a fixed deletion period.
+
+The API limits accepted submissions to five per normalized email address and 100 in total during the preceding hour. It returns `429` when a cap is reached. Missing bindings, schema errors, or storage failures return `503`; the UI preserves the visitor's fields and offers email as the fallback. These limits are basic request controls, not a guarantee against abuse.
+
+Stay on the Free plan and monitor Workers and D1 usage in Cloudflare. D1 Free queries stop when account allowances are exhausted; do not enable a paid upgrade without a separate decision. See [D1 pricing and limits](https://developers.cloudflare.com/d1/platform/pricing/).
+
+## Live verification and recovery
+
+- Open and refresh `/`, `/privacy/`, and `/terms/`; verify readable HTML before JavaScript and an actual 404 for unknown pages.
+- Check navigation, keyboard focus, mobile-menu dismissal, FAQs, filters, expanded records, and 320/390/768/1440-pixel layouts.
+- Decode all email drafts without sending messages. Every recipient must be `westline.dispatch365@gmail.com`.
+- Submit one clearly marked test enquiry for each request type. Confirm a `201` response, matching D1 records, UTC timestamps, and saved-request text. Remove only those identified test records after verification.
+- Test invalid input and unavailable storage in preview. Confirm no success appears on failure, fields remain available, and email fallback works. Verify that GET requests do not expose stored records.
+- Confirm the fictional-data notices, approval boundaries, and Privacy Policy accurately describe the deployed functionality.
+- Verify titles, descriptions, canonical URLs, Open Graph image URLs, sitemap, and robots.txt against the real production origin.
+
+Retain the source commit for every verified deployment. If an application update fails, restore the last verified deployment and repair the source. Rolling back a Pages deployment does not roll back the D1 database. Preserve enquiry records when changing code or schema. If the public origin changes, update `VITE_SITE_URL`, rebuild, and recheck metadata and sitemap URLs.

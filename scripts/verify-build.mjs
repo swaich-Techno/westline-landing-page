@@ -86,7 +86,11 @@ for (const [route, html] of documents) {
     !html.includes("<!--app-html-->"),
     `${route}: no unresolved render marker`,
   );
-  assert.ok(!/<form\b/.test(html), `${route}: email-only contact flow`);
+  assert.equal(
+    (html.match(/<form\b/g) ?? []).length,
+    route === "/" ? 1 : 0,
+    `${route}: optional enquiry form appears only on the homepage`,
+  );
   const title = text(html.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "");
   const description = meta(html, "description");
   assert.ok(title && description, `${route}: metadata present`);
@@ -224,6 +228,30 @@ assert.equal(
 );
 
 const robots = await readFile(resolve(dist, "robots.txt"), "utf8");
+assert.match(
+  home,
+  /action="\/api\/enquiries" method="post"/,
+  "Form uses the enquiry endpoint",
+);
+assert.match(
+  home,
+  /<fieldset disabled=""/,
+  "Form stays disabled before JavaScript is ready",
+);
+assert.match(
+  home,
+  /<noscript>/,
+  "Form includes an email fallback without JavaScript",
+);
+const workerRoutes = JSON.parse(
+  await readFile(resolve(dist, "_routes.json"), "utf8"),
+);
+assert.deepEqual(
+  workerRoutes.include,
+  ["/api/*"],
+  "Only API requests invoke the worker",
+);
+await access(resolve(dist, "_worker.js"));
 const sitemap = await readFile(resolve(dist, "sitemap.xml"), "utf8");
 if (origin) {
   assert.ok(

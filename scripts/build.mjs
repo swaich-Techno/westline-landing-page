@@ -3,6 +3,7 @@ import { resolve, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { isIP } from "node:net";
 import { build, loadEnv } from "vite";
+import { buildFunctions } from "./build-functions.mjs";
 
 const root = process.cwd();
 const env = { ...loadEnv("production", root, ""), ...process.env };
@@ -62,6 +63,8 @@ await build({
     emptyOutDir: true,
   },
 });
+
+await buildFunctions(root);
 
 const { render } = await import(
   pathToFileURL(resolve(root, ".prerender/entry-server.js")).href

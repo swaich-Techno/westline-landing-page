@@ -25,6 +25,7 @@ import { site } from "./config/site";
 import { jobs, type Job } from "./data/jobs";
 import { createEmailHref } from "./lib/email";
 import { LegalPage } from "./components/LegalPage";
+import { EnquiryForm } from "./components/EnquiryForm";
 
 const nav = [
   ["Home", "home"],
@@ -815,6 +816,7 @@ function HomePage() {
             <span>Copy the address or open an email draft.</span>
           </div>
         </div>
+        <EnquiryForm />
       </section>
     </main>
   );
