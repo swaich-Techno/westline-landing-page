@@ -8,6 +8,33 @@ type Submission =
   | { state: "error"; message: string };
 
 export function EnquiryForm() {
+  if (import.meta.env.VITE_EMAIL_ONLY === "true") {
+    return (
+      <div className="container enquiry-block">
+        <div className="enquiry-intro">
+          <p className="eyebrow">GET IN TOUCH</p>
+          <h3 id="enquiry-title">Email our team</h3>
+          <p>
+            This preview does not accept website enquiries. Please email us
+            directly or use the contact form on our Cloudflare website.
+          </p>
+          <a className="text-link" href={createEmailHref("contact")}>
+            Email Westline Dispatch
+            <ArrowUpRight size={17} aria-hidden="true" />
+          </a>
+          <p>
+            <a href="https://westline-dispatch.pages.dev/#contact">
+              Visit the live contact page
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return <StoredEnquiryForm />;
+}
+
+function StoredEnquiryForm() {
   const [ready, setReady] = useState(false);
   const [submission, setSubmission] = useState<Submission>({ state: "idle" });
   const inFlight = useRef(false);

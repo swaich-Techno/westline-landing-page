@@ -64,6 +64,7 @@ function meta(html, key) {
 
 const home = documents.get("/");
 const origin = canonical(home) ? new URL(canonical(home)).origin : "";
+const emailOnly = home.includes("This preview does not accept website enquiries.");
 const titles = new Set();
 const descriptions = new Set();
 const emailSubjects = new Set();
@@ -88,7 +89,7 @@ for (const [route, html] of documents) {
   );
   assert.equal(
     (html.match(/<form\b/g) ?? []).length,
-    route === "/" ? 1 : 0,
+    route === "/" && !emailOnly ? 1 : 0,
     `${route}: optional enquiry form appears only on the homepage`,
   );
   const title = text(html.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "");
@@ -208,21 +209,15 @@ assert.ok(text(home).includes("No total calculated"), "Missing rates never becom
 assert.ok(text(home).includes("No assumed 24/7 coverage"), "Coverage boundaries stated");
 
 const robots = await readFile(resolve(dist, "robots.txt"), "utf8");
-assert.match(
-  home,
-  /action="\/api\/enquiries" method="post"/,
-  "Form uses the enquiry endpoint",
-);
-assert.match(
-  home,
-  /<fieldset disabled=""/,
-  "Form stays disabled before JavaScript is ready",
-);
-assert.match(
-  home,
-  /<noscript>/,
-  "Form includes an email fallback without JavaScript",
-);
+if (emailOnly) {
+  assert.doesNotMatch(home, /action="\/api\/enquiries"/, "Preview has no storage form");
+  assert.match(home, /href="https:\/\/westline-dispatch\.pages\.dev\/#contact"/, "Preview links to live contact");
+  assert.equal(origin, "", "Email-only preview cannot be indexed as a release");
+} else {
+  assert.match(home, /action="\/api\/enquiries" method="post"/, "Form uses the enquiry endpoint");
+  assert.match(home, /<fieldset disabled=""/, "Form stays disabled before JavaScript is ready");
+  assert.match(home, /<noscript>/, "Form includes an email fallback without JavaScript");
+}
 const workerRoutes = JSON.parse(
   await readFile(resolve(dist, "_routes.json"), "utf8"),
 );
@@ -279,7 +274,7 @@ assert.notEqual(
 );
 assert.match(
   releaseGuard.stderr,
-  /Release blocked/,
+  /Release blocked|cannot be released/,
   "Release failure explains required configuration",
 );
 
