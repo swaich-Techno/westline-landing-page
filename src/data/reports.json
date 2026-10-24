@@ -1,0 +1,41 @@
+[
+  {
+    "id": "001",
+    "unit": "2184",
+    "complaint": "Trailer air leak",
+    "status": "Repair completed; documentation review pending",
+    "notes": "Fictional technician reports an audible leak at a trailer air-line fitting. Replaced the damaged fitting and checked the connection.",
+    "verified": "In this fictional record, the technician reports no leak at the repaired connection during a soap-solution check. No roadworthiness certification or full brake-system test is represented.",
+    "approvals": "Client review of labor, parts and final invoice remains pending.",
+    "next": "Review the service notes and supplied time record before approving the invoice.",
+    "responsible": "Client repair manager: repair acceptance. Client billing reviewer: final invoice.",
+    "time": "Illustrative shift, local client time: arrival 22:10; work 22:20–23:05 (45 minutes); departure 23:15. Travel time not supplied.",
+    "invoice": "Awaiting client review. No approved rates or parts price supplied; no amount due calculated."
+  },
+  {
+    "id": "002",
+    "unit": "405",
+    "complaint": "Brake chamber replacement",
+    "status": "Awaiting parts approval",
+    "notes": "Fictional technician identifies a suspected leaking brake chamber. Replacement is proposed, not completed.",
+    "verified": "Inspection finding only. Replacement, leak checks and functional testing have not been recorded.",
+    "approvals": "Repair manager must approve the correct chamber specification, parts purchase and repair scope.",
+    "next": "Contact repair manager. Keep the unit out of service pending the client's repair and release decision.",
+    "responsible": "Client repair manager: parts and scope approval. Assigned technician: repair and testing after approval.",
+    "time": "Inspection reported at 00:40 in the illustrative shift. Arrival, labor duration and travel time not supplied.",
+    "invoice": "Draft on hold. Do not bill an uncompleted replacement or invent labor time."
+  },
+  {
+    "id": "003",
+    "unit": "7201",
+    "complaint": "Electrical system issue",
+    "status": "Technician inspection pending",
+    "notes": "Fictional caller reports intermittent no-crank. No technician diagnosis is available.",
+    "verified": "None. Cause and repair requirements remain unverified.",
+    "approvals": "Client dispatch lead to confirm assignment and authorize inspection under the agreed procedure.",
+    "next": "Confirm ETA with the assigned technician, then update the client without promising a repair time.",
+    "responsible": "Client dispatch lead: assignment. Assigned technician: inspection and findings.",
+    "time": "Request logged at 03:15 in the illustrative shift. ETA, arrival and labor time not supplied.",
+    "invoice": "Not ready for invoice preparation. Await inspection, approved work and actual time records."
+  }
+]

@@ -5,6 +5,7 @@ import { Readable } from "node:stream";
 import { DatabaseSync } from "node:sqlite";
 import { parseArgs } from "node:util";
 import { handleEnquiryRequest } from "../functions/api/enquiries.ts";
+import { handleAdminRequest } from "../functions/admin.ts";
 
 // Local verification only. No account credentials or remote database are used.
 const { values } = parseArgs({
@@ -61,6 +62,7 @@ const contentTypes = {
   ".woff2": "font/woff2",
   ".txt": "text/plain; charset=utf-8",
   ".xml": "application/xml; charset=utf-8",
+  ".pdf": "application/pdf",
 };
 
 async function staticResponse(url, method) {
@@ -139,6 +141,8 @@ const server = createServer(async (incoming, outgoing) => {
           : {}),
       });
       result = await handleEnquiryRequest(request, env);
+    } else if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
+      result = await handleAdminRequest(new Request(url, { headers, method: incoming.method }), env);
     } else if (url.pathname.startsWith("/api/")) {
       result = Response.json(
         { ok: false, error: "Not found." },

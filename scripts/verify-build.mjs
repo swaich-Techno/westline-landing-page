@@ -194,38 +194,18 @@ assert.match(
   text(home),
   /Your Repair Team Handles the Road\. We Handle the Back Office\./,
 );
-assert.equal(
-  (home.match(/class="job-detail"/g) ?? []).length,
-  3,
-  "Exactly three expandable fictional jobs",
-);
-for (const value of [
-  "Unit 2184",
-  "Trailer air leak",
-  "Awaiting client review",
-  "Unit 405",
-  "Brake chamber replacement",
-  "Contact repair manager",
-  "Unit 7201",
-  "Electrical system issue",
-  "Confirm ETA",
-]) {
-  assert.ok(
-    text(home).includes(value),
-    `Required supplied sample detail: ${value}`,
-  );
+for (const slug of ["handover", "service-report", "invoice-draft"]) {
+  assert.ok(home.includes('id="document-' + slug + '"'), "Document preview exists");
+  assert.ok(home.includes('href="/samples/' + slug + '.pdf"'), "Download link exists");
+  const pdf = await readFile(resolve(dist, "samples", slug + ".pdf"));
+  assert.ok(pdf.subarray(0, 5).toString() === "%PDF-", "Download is a real PDF");
 }
-assert.equal(
-  (home.match(/DEMONSTRATION DATA/g) ?? []).length,
-  2,
-  "Hero and interactive report label the data",
-);
-assert.equal(
-  (home.match(/Illustrative example — not a real customer record\./g) ?? [])
-    .length,
-  2,
-  "Both examples explain their fictional status",
-);
+for (const label of ["Job", "Unit 2184", "Unit 405", "Unit 7201", "Complaint", "Status", "Technician notes", "Verified repair details", "Pending approvals", "Next action", "Responsible party", "Time records", "Invoice review status", "Our Operations Team", "Harkirat Singh", "Operational Manager", "India", "See a Sample Handover", "Request Operations Support", "Email Our Team"]) {
+  assert.ok(text(home).toLowerCase().includes(label.toLowerCase()), "Required content: " + label);
+}
+assert.ok(text(home).includes("not completed Westline client jobs"), "Reports explicitly fictional");
+assert.ok(text(home).includes("No total calculated"), "Missing rates never become a fabricated bill");
+assert.ok(text(home).includes("No assumed 24/7 coverage"), "Coverage boundaries stated");
 
 const robots = await readFile(resolve(dist, "robots.txt"), "utf8");
 assert.match(
@@ -248,8 +228,8 @@ const workerRoutes = JSON.parse(
 );
 assert.deepEqual(
   workerRoutes.include,
-  ["/api/*"],
-  "Only API requests invoke the worker",
+  ["/api/*", "/admin", "/admin/*"],
+  "API and every private admin route invoke the worker",
 );
 await access(resolve(dist, "_worker.js"));
 const sitemap = await readFile(resolve(dist, "sitemap.xml"), "utf8");

@@ -3,6 +3,10 @@ export interface EnquiryDatabase {
   prepare(sql: string): {
     bind(...values: (string | number | null)[]): {
       run(): Promise<{ success: boolean; meta?: { changes?: number } }>;
+      all?(): Promise<{
+        success: boolean;
+        results?: Record<string, unknown>[];
+      }>;
     };
   };
 }

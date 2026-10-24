@@ -22,7 +22,7 @@ export async function buildFunctions(root = process.cwd()) {
   });
   await writeFile(
     resolve(root, "dist/_routes.json"),
-    `${JSON.stringify({ version: 1, include: ["/api/*"], exclude: [] }, null, 2)}\n`,
+    `${JSON.stringify({ version: 1, include: ["/api/*", "/admin", "/admin/*"], exclude: [] }, null, 2)}\n`,
   );
 }
 

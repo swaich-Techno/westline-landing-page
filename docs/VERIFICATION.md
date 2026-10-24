@@ -1,4 +1,16 @@
-# Verification — updated October 20, 2026
+# Verification — updated October 24, 2026
+
+## Dispatch 2.0 candidate — not deployed
+
+The latest checkout builds a new landing page and private viewer, but the production site still serves the October 20 version. A production Direct Upload and Cloudflare Access onboarding remain outstanding. Do not interpret the checks below as proof that the redesign is live.
+
+- Weaknesses found: the old page repeated its fictional handover; had no service report, invoice draft, PDF downloads or named operations contact; did not spell out all approval and confidentiality boundaries; and had no operator notification or private viewer. The form already validated inputs, rejected its honeypot, capped submissions and returned success only when D1 reported one inserted row. Those controls were preserved.
+- The candidate keeps the hero headline, colors, logo, Inter font, CTA destinations, D1 binding and legal routes. The new samples share one fictional data source across the page and PDFs. Prices and times not supplied remain unknown. The team section uses the owner's approved name, role and India location.
+- Production build, TypeScript checks, link/anchor and metadata contract, and 13 endpoint/admin tests passed on October 24. The output contains three PDFs, prerendered legal pages and worker routes for `/api/*` plus `/admin/*`. PDF pages were rendered and visually checked. Local Chromium preview showed desktop and 450px mobile layouts; at 450px, document selection worked with no horizontal overflow. A local form submission was confirmed in SQLite by matching the browser reference `b0aade6b` to the stored row.
+- The existing live form was tested with a clearly marked synthetic `enquiry`; its browser confirmation `6722c12e` matched the full D1 row `6722c12e-2d1a-46f9-93f6-f3a3b986e3cd` in the owner's Cloudflare console at `2026-10-24T06:22:08.011Z`. This verifies the deployed **old** form flow, not the new release. The record needs no follow-up and remains identifiable for operator cleanup.
+- Cloudflare Zero Trust shows its onboarding screen. No Access application, audience tag or server-side Access variables have been configured; the new private viewer therefore fails closed. The operator can still review D1 through the authenticated dashboard. A working private viewer cannot be claimed until Access setup and signed-in/signed-out live tests pass.
+- Lighthouse was attempted using an audit-only temporary package; its first install failed on a missing transitive `debug` package. Browser automation later received an automatic approval-review failure because the account hit its usage limit. The denied browser action was not retried through another browser surface. Lighthouse performance/accessibility scores, narrow 320px checks, final cross-browser QA and deployed private-viewer behavior remain unverified.
+- Release gate: finish Access onboarding or explicitly use the Cloudflare D1 console as the manual viewer, run Lighthouse and mobile QA when browser approval is available, deploy the reviewed `dist/` through Pages Direct Upload, then repeat production form and D1 checks. The prior verification below describes earlier releases only.
 
 ## Current integration status
 

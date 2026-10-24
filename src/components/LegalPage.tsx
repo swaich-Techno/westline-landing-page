@@ -1,7 +1,7 @@
 import { site } from "../config/site";
 import { createEmailHref } from "../lib/email";
 
-const effectiveDate = "October 20, 2026";
+const effectiveDate = "October 23, 2026";
 
 function PrivacyContent() {
   return (
@@ -19,7 +19,7 @@ function PrivacyContent() {
 
       <h2>How email enquiries work</h2>
       <p>
-        Links labeled as email or sample-request actions open a draft in your
+        Links labeled as email actions open a draft in your
         email application. Clicking an email link does not send a message to us;
         you choose whether to send it. We use Gmail to receive and manage email
         enquiries. Your email provider and Google process messages under their
@@ -85,7 +85,10 @@ function PrivacyContent() {
       <p>
         Google and Cloudflare process information needed to provide email,
         hosting, and database services. Westline manages stored form enquiries
-        through its Cloudflare account. Email correspondence and form records
+        through its Cloudflare account or an authenticated, restricted operator viewer.
+        Cloudflare Access processes operator sign-in information and session cookies
+        for the private viewer; visitors do not need an account to enquire or download samples.
+        Email correspondence and form records
         may be retained while relevant to your enquiry, an agreed service
         relationship, recordkeeping, or applicable obligations. Retention
         depends on those needs rather than a single fixed period for every

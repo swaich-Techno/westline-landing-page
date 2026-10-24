@@ -1,6 +1,8 @@
 import { handleEnquiryRequest, type EnquiryEnv } from "./api/enquiries.ts";
+import { handleAdminRequest } from "./admin.ts";
+import type { AccessEnv } from "./access.ts";
 
-interface WorkerEnv extends EnquiryEnv {
+interface WorkerEnv extends EnquiryEnv, AccessEnv {
   ASSETS: { fetch(request: Request): Promise<Response> };
 }
 
@@ -8,6 +10,9 @@ interface WorkerEnv extends EnquiryEnv {
 export default {
   async fetch(request: Request, env: WorkerEnv): Promise<Response> {
     const path = new URL(request.url).pathname;
+    if (path === "/admin" || path.startsWith("/admin/")) {
+      return handleAdminRequest(request, env);
+    }
     if (path === "/api/enquiries" || path === "/api/enquiries/") {
       return handleEnquiryRequest(request, env);
     }

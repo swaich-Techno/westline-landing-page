@@ -134,7 +134,7 @@ export function EnquiryForm() {
               <select
                 id="enquiry-type"
                 name="requestType"
-                defaultValue="sample"
+                defaultValue="enquiry"
               >
                 <option value="sample">Request a sample handover</option>
                 <option value="enquiry">Discuss operations support</option>

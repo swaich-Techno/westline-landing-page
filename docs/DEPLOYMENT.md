@@ -24,7 +24,7 @@ The table contains `id`, `created_at` (UTC), `name`, `email`, `company`, `reques
 
 Use Node.js 22.12 or a newer supported LTS. Run the typecheck, endpoint tests, production build, and `npm run test:build` before deploying. The build root is the repository root, the command is `npm run build`, and the output directory is `dist`.
 
-The output must include the prerendered pages, assets, `dist/_worker.js`, and `dist/_routes.json`. The compiled worker implements `/api/enquiries`; the routes file invokes it for `/api/*`, leaving ordinary pages and assets static. Cloudflare's advanced mode uses the compiled worker rather than separately compiling the source `functions/` directory. See [advanced mode](https://developers.cloudflare.com/pages/functions/advanced-mode/).
+The output must include the prerendered pages, three sample PDFs, assets, `dist/_worker.js`, and `dist/_routes.json`. The compiled worker implements `/api/enquiries` and the private admin viewer; the routes file invokes it for `/api/*` and `/admin/*`, leaving ordinary pages and assets static. Cloudflare's advanced mode uses the compiled worker rather than separately compiling the source `functions/` directory. See [advanced mode](https://developers.cloudflare.com/pages/functions/advanced-mode/).
 
 Set `VITE_SITE_URL` to the actual assigned production HTTPS origin and `RELEASE=true` for the release build. If a first upload is needed to obtain the project address, treat it as a bootstrap preview, then rebuild with the confirmed origin. Preview builds without an origin are noindex and omit an invented canonical address. Never substitute a guessed domain or ephemeral deployment URL for the production origin.
 
@@ -47,7 +47,15 @@ Dashboard upload does not compile a source `functions/` folder, which is why thi
 
 ## Review and follow up on requests
 
-There is no automatic inbox notification. The owner must review stored requests through the authenticated Cloudflare account and reply manually from the business email account.
+There is no automatic inbox notification. The operator can review stored requests through the authenticated Cloudflare account and reply manually from the business email account. The new private viewer at `/admin/` is available only after completing all steps below; until then it returns a generic unavailable response without exposing records.
+
+### Enable the private enquiry viewer
+
+1. In Cloudflare Zero Trust, create an Access application for the exact production hostname and `/admin/*` path. Restrict its **Allow** policy to the one verified operator email. Confirm that Cloudflare offers this path-scoped protection on the current Pages hostname before making any release claim. Use the Free plan only.
+2. Copy the actual Access team domain and application audience (AUD) tag from that application. Configure Pages **server-side** production environment variables `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, and `ADMIN_EMAIL`. The team domain must be the exact `name.cloudflareaccess.com` hostname, not a URL; the audience tag is the 64-character application tag. Set `ADMIN_EMAIL` to the operator's authorized sign-in email. Never prefix these variables with `VITE_`.
+3. Confirm that `DB` remains bound to `westline-enquiries`. Deploy a build whose `_routes.json` includes `/admin` and `/admin/*`; the worker must run on every private path. The worker verifies the Access JWT signature, audience, issuer, expiry and exact operator email before reading D1. A missing or invalid configuration fails closed.
+4. Test `/admin/` in a private browser while signed out (no records), then sign in with the authorized account and confirm the read-only enquiry list. Test a different email and invalid/expired assertion; neither may see data. The viewer has no reply, edit or delete action. Use the D1 console for verified correction and deletion requests.
+5. Review the viewer routinely. It is a manual inbox and does not generate an email alert or guarantee a response time. If Access setup is unavailable, continue reviewing D1 through the Cloudflare account; do not publish an unprotected list endpoint.
 
 Open the bound D1 database's console and run:
 

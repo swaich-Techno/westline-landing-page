@@ -6,23 +6,17 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
-  ClipboardCheck,
-  Clock3,
-  FileCheck2,
   FileText,
   Mail,
   Menu,
-  MessageSquareText,
   Radio,
   Route,
-  ShieldCheck,
   Sunrise,
-  Truck,
-  Wrench,
   X,
 } from "lucide-react";
 import { site } from "./config/site";
-import { jobs, type Job } from "./data/jobs";
+import { SampleReports, OperationsPreview, BeforeAfter, Confidence, OperationsTeam } from "./components/Operations";
+import "./operations.css";
 import { createEmailHref } from "./lib/email";
 import { LegalPage } from "./components/LegalPage";
 import { EnquiryForm } from "./components/EnquiryForm";
@@ -119,8 +113,8 @@ function Header({ home }: { home: boolean }) {
             </a>
           ))}
         </nav>
-        <EmailLink className="button button-navy header-cta">
-          Request a Sample
+        <EmailLink intent="proposal" className="button button-navy header-cta">
+          Request Operations Support
         </EmailLink>
         <button
           ref={toggle}
@@ -145,81 +139,9 @@ function Header({ home }: { home: boolean }) {
             <ArrowUpRight size={16} aria-hidden="true" />
           </a>
         ))}
-        <EmailLink>Request a Sample</EmailLink>
+        <EmailLink>Email Our Team</EmailLink>
       </nav>
     </header>
-  );
-}
-
-function Status({ job }: { job: Job }) {
-  return (
-    <span
-      className={`status ${job.completed ? "status-complete" : "status-pending"}`}
-    >
-      <span aria-hidden="true" />
-      {job.status}
-    </span>
-  );
-}
-
-function HeroReport() {
-  return (
-    <div className="hero-art">
-      <div className="orbit orbit-one" aria-hidden="true" />
-      <div className="orbit orbit-two" aria-hidden="true" />
-      <div className="report-overline">
-        <span className="small-rule" />
-        FROM THE LAST SHIFT TO THE NEXT.
-      </div>
-      <div className="hero-report">
-        <div className="hero-report-head">
-          <span className="report-brand">
-            <span className="report-square" />
-            WESTLINE
-          </span>
-          <span className="demo-label">DEMONSTRATION DATA</span>
-        </div>
-        <div className="hero-report-title">
-          <div>
-            <p className="report-kicker">THE OVERNIGHT PICTURE</p>
-            <h2>Morning handover</h2>
-          </div>
-          <Sunrise size={32} strokeWidth={1.4} aria-hidden="true" />
-        </div>
-        <div className="report-column-head">
-          <span>JOB / UNIT</span>
-          <span>WHERE THINGS STAND</span>
-        </div>
-        {jobs.map((job) => (
-          <div className="hero-job" key={job.id}>
-            <div className="hero-unit">
-              <span>{job.id}</span>
-              <strong>Unit {job.unit}</strong>
-            </div>
-            <div>
-              <p>{job.issue}</p>
-              <Status job={job} />
-            </div>
-          </div>
-        ))}
-        <div className="report-bottom">
-          <FileCheck2 size={17} aria-hidden="true" />
-          <span>Job details. Open items. Clear next steps.</span>
-        </div>
-      </div>
-      <div className="handover-note">
-        <span className="note-icon">
-          <ClipboardCheck size={22} aria-hidden="true" />
-        </span>
-        <div>
-          <strong>A clearer start to the day.</strong>
-          <span>The details your next shift needs.</span>
-        </div>
-      </div>
-      <p className="hero-example-note">
-        Illustrative example — not a real customer record.
-      </p>
-    </div>
   );
 }
 
@@ -292,96 +214,6 @@ const questions = [
   ],
 ];
 
-function HandoverDemo() {
-  const [filter, setFilter] = useState("all");
-  const visible = jobs.filter(
-    (job) =>
-      filter === "all" ||
-      (filter === "completed" ? job.completed : !job.completed),
-  );
-  return (
-    <div className="handover-dashboard">
-      <div className="dashboard-heading">
-        <div>
-          <div className="report-brand">
-            <span className="report-square" />
-            WESTLINE <span className="brand-dash">/</span> MORNING HANDOVER
-          </div>
-          <p>A shared picture for the next shift.</p>
-        </div>
-        <span className="demo-label">DEMONSTRATION DATA</span>
-      </div>
-      <div className="dashboard-toolbar">
-        <div
-          className="filter-group"
-          role="group"
-          aria-label="Filter sample jobs"
-        >
-          {[
-            ["all", "All jobs"],
-            ["completed", "Completed repairs"],
-            ["pending", "Pending repairs"],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              aria-pressed={filter === value}
-              onClick={() => setFilter(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <span className="job-count" aria-live="polite">
-          {visible.length} {visible.length === 1 ? "job" : "jobs"} shown
-        </span>
-      </div>
-      <div className="dashboard-column-head" aria-hidden="true">
-        <span>JOB / UNIT</span>
-        <span>REPAIR DETAILS</span>
-        <span>JOB STATUS</span>
-        <span />
-      </div>
-      <div className="job-list">
-        {visible.map((job) => (
-          <details key={job.id} className="job-detail">
-            <summary>
-              <span className="job-identity">
-                <span className="job-number">{job.id}</span>
-                <strong>Unit {job.unit}</strong>
-              </span>
-              <span className="job-issue">{job.issue}</span>
-              <Status job={job} />
-              <ChevronDown
-                size={19}
-                className="disclosure-icon"
-                aria-hidden="true"
-              />
-              <span className="sr-only"> — View job details</span>
-            </summary>
-            <div className="job-expanded">
-              <span>
-                <span className="detail-label">
-                  {job.invoice ? "INVOICE" : "FOLLOW-UP"}
-                </span>
-                <strong>{job.invoice || job.followUp}</strong>
-              </span>
-              <span>
-                <span className="detail-label">REVIEW RESPONSIBILITY</span>
-                <span>Your authorized repair team</span>
-              </span>
-            </div>
-          </details>
-        ))}
-      </div>
-      <div className="dashboard-footer">
-        <ShieldCheck size={17} aria-hidden="true" />
-        <p>Illustrative example — not a real customer record.</p>
-        <span>Repair and financial decisions stay with you.</span>
-      </div>
-    </div>
-  );
-}
-
 function HomePage() {
   return (
     <main id="main-content">
@@ -403,18 +235,18 @@ function HomePage() {
               and trailer repair businesses.
             </p>
             <div className="hero-actions">
-              <EmailLink>Request a Sample Handover</EmailLink>
-              <a className="button button-ghost" href="#services">
-                Explore Our Services
+              <a className="button button-copper" href="#sample-reports">See a Sample Handover <ArrowDown size={17} aria-hidden="true" /></a>
+              <a className="button button-ghost" href="#contact">
+                Request Operations Support
                 <ArrowDown size={17} aria-hidden="true" />
               </a>
             </div>
             <p className="hero-trust">
               <CheckCircle2 size={16} aria-hidden="true" />
-              Built around real-world mobile repair workflows.
+              Human operations support. Not another software subscription.
             </p>
           </div>
-          <HeroReport />
+          <OperationsPreview />
         </div>
         <div className="container hero-bottom">
           <span>FOCUSED ON THE WORK BEHIND THE WORK.</span>
@@ -432,61 +264,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section
-        className="section problem-section"
-        aria-labelledby="problem-title"
-      >
-        <div className="container problem-grid">
-          <div>
-            <p className="eyebrow">THE WORK DOESN’T END AT THE REPAIR</p>
-            <h2 id="problem-title">
-              Your Technicians Fix Trucks.
-              <br />
-              <span className="text-slate">Who Handles Everything Else?</span>
-            </h2>
-            <p className="section-description">
-              When the office work follows you home, even a completed repair can
-              leave a lot unfinished.
-            </p>
-          </div>
-          <div className="problem-list">
-            {[
-              [
-                Clock3,
-                "Calls don’t follow office hours.",
-                "Incoming requests and job updates need someone to keep the details moving.",
-              ],
-              [
-                FileText,
-                "Field notes aren’t finished reports.",
-                "Technician notes need to become clear, organized service documentation.",
-              ],
-              [
-                ClipboardCheck,
-                "Missing details hold up invoices.",
-                "Incomplete job information means more chasing before an invoice is ready.",
-              ],
-              [
-                Sunrise,
-                "The next shift needs the whole picture.",
-                "Open jobs, approvals and follow-ups can get lost in an incomplete handover.",
-              ],
-            ].map(([Icon, title, text], i) => {
-              const ProblemIcon = Icon as typeof Clock3;
-              return (
-                <div className="problem-item" key={String(title)}>
-                  <span className="problem-index">0{i + 1}</span>
-                  <ProblemIcon size={22} strokeWidth={1.5} aria-hidden="true" />
-                  <div>
-                    <h3>{String(title)}</h3>
-                    <p>{String(text)}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <BeforeAfter />
 
       <section
         id="services"
@@ -587,11 +365,10 @@ function HomePage() {
               <h2 id="sample-title">See what the next shift sees.</h2>
             </div>
             <p>
-              Explore a fictional overnight handover. Open a job to see what
-              needs attention next.
+              Three fictional documents. One connected repair workflow. Explore the details, then download a PDF without sharing your email.
             </p>
           </div>
-          <HandoverDemo />
+          <SampleReports />
           <div className="sample-bottom">
             <p>
               The format is an example.
@@ -599,151 +376,14 @@ function HomePage() {
               <strong>The workflow can be built around you.</strong>
             </p>
             <EmailLink className="button button-navy">
-              Request a Full Sample Report
+              Email Our Team
             </EmailLink>
           </div>
         </div>
       </section>
 
-      <section className="section why-section" aria-labelledby="why-title">
-        <div className="container why-grid">
-          <div className="why-intro">
-            <p className="eyebrow">THE RIGHT CONTEXT MATTERS</p>
-            <h2 id="why-title">Support That Understands Mobile Repairs</h2>
-            <p>
-              A roadside job is more than a ticket. There are technician
-              updates, customer expectations, approvals and records to keep
-              aligned.
-            </p>
-            <div className="why-signoff">
-              <Wrench size={19} aria-hidden="true" />
-              <span>Practical support. Clear responsibilities.</span>
-            </div>
-          </div>
-          <div className="capabilities">
-            {[
-              [
-                Route,
-                "Familiarity with roadside repair workflows",
-                "Support built around the way mobile repair work moves.",
-              ],
-              [
-                MessageSquareText,
-                "Clear written customer updates",
-                "Keep job progress and next steps understandable.",
-              ],
-              [
-                ClipboardCheck,
-                "Organized technician and job records",
-                "Bring the details of each job into a consistent format.",
-              ],
-              [
-                FileCheck2,
-                "Invoices based on approved details",
-                "Prepare drafts using your rates and supplied information.",
-              ],
-              [
-                Sunrise,
-                "Consistent handover documentation",
-                "Give the next shift a useful record of what remains.",
-              ],
-              [
-                ShieldCheck,
-                "Flexible support by agreed scope",
-                "Define the work, coverage and approvals together.",
-              ],
-            ].map(([Icon, title, text]) => {
-              const CapabilityIcon = Icon as typeof Route;
-              return (
-                <div className="capability" key={String(title)}>
-                  <CapabilityIcon
-                    size={22}
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <h3>{String(title)}</h3>
-                    <p>{String(text)}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section
-        className="section audience-section"
-        aria-labelledby="audience-title"
-      >
-        <div className="container">
-          <p className="eyebrow">A SPECIALIST FOCUS</p>
-          <div className="section-heading">
-            <h2 id="audience-title">
-              Built for Mobile
-              <br />
-              Repair Operations
-            </h2>
-            <p>
-              For the owners and operations managers keeping commercial trucks
-              and trailers moving.
-            </p>
-          </div>
-          <div className="audience-list">
-            {[
-              "Mobile Diesel Repair",
-              "Truck & Trailer Repair",
-              "Commercial Roadside Assistance",
-              "Independent Repair Teams",
-              "Growing Repair Service Companies",
-            ].map((label) => (
-              <span key={label}>
-                <Truck size={18} strokeWidth={1.5} aria-hidden="true" />
-                {label}
-              </span>
-            ))}
-          </div>
-          <p className="audience-note">
-            Our focus is repair-business operations. We do not provide freight
-            dispatch, load booking or load management.
-          </p>
-        </div>
-      </section>
-
-      <section
-        id="about"
-        className="section about-section"
-        aria-labelledby="about-title"
-      >
-        <div className="container about-grid">
-          <div>
-            <p className="eyebrow">ABOUT WESTLINE</p>
-            <h2 id="about-title">
-              A Practical Partner Behind Your Repair Operations
-            </h2>
-          </div>
-          <div className="about-copy">
-            <p className="about-lead">
-              Good support starts with understanding the work.
-            </p>
-            <p>
-              Westline Dispatch is a new remote operations-support business
-              focused on US mobile commercial truck and trailer repair
-              companies. Our team brings experience with US roadside repair
-              workflows and the administrative details that surround them.
-            </p>
-            <p>
-              We help turn job updates, technician notes and approved
-              information into organized records and clear handovers, so owners
-              can keep their attention on running the repair business.
-            </p>
-            <a className="text-link" href={createEmailHref("contact")}>
-              Tell us about your operation
-              <ArrowUpRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-      </section>
+      <Confidence />
+      <OperationsTeam />
 
       <section className="section faq-section" aria-labelledby="faq-title">
         <div className="container faq-grid">
@@ -790,9 +430,9 @@ function HomePage() {
               your business.
             </p>
             <div className="contact-actions">
-              <EmailLink>Request a Sample</EmailLink>
+              <EmailLink intent="proposal">Request Operations Support</EmailLink>
               <EmailLink intent="contact" className="button button-outline">
-                Email Westline
+                Email Our Team
               </EmailLink>
             </div>
             <p className="contact-small">
