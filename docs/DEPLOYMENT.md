@@ -2,6 +2,10 @@
 
 The target is Cloudflare Pages with Workers Free and D1 Free allowances. Public pages are prerendered; the optional enquiry form uses a Pages worker and a D1 database. Email remains the primary contact channel. There is no paid email service, automated notification, or automatic sample delivery.
 
+## Vercel development preview
+
+Vercel does not run the Cloudflare Pages worker or supply the `DB` binding. When Vercel builds this repository (`VERCEL=1`), the build deliberately omits the canonical origin, blocks `RELEASE=true`, emits noindex metadata and disallows crawling. It replaces the enquiry form with working email and Cloudflare contact links; it does not claim to save submissions. The Cloudflare-only `/admin/` viewer is not a Vercel administration route. Keep Cloudflare Pages as the business site and source of truth for D1. Do not promote a Vercel preview to a public commercial site without checking the team's plan and implementing a separate, verified backend and authentication design. Never copy D1 tokens into `VITE_` variables.
+
 ## Current status — October 20, 2026
 
 The site is live at **https://westline-dispatch.pages.dev**. Pages project: `westline-dispatch`, production branch: `main`, deployment method: Direct Upload. D1 database: `westline-enquiries`, ID: `be765ed8-5596-47b9-8c61-d0b9f0ab9caf`, binding: `DB`. The migration and indexes were applied, then the site was redeployed with the binding. Both request types were saved through the public form and confirmed in D1. No paid plan was selected.

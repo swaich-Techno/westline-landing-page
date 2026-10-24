@@ -7,7 +7,8 @@ import { buildFunctions } from "./build-functions.mjs";
 
 const root = process.cwd();
 const env = { ...loadEnv("production", root, ""), ...process.env };
-const requestedOrigin = (env.VITE_SITE_URL ?? "").trim();
+const vercelPreview = env.VERCEL === "1";
+const requestedOrigin = vercelPreview ? "" : (env.VITE_SITE_URL ?? "").trim();
 const release = env.RELEASE === "true";
 let origin = "";
 
@@ -44,6 +45,9 @@ if (requestedOrigin) {
   origin = url.origin;
 }
 
+if (release && vercelPreview) {
+  throw new Error("A Vercel build cannot be released while enquiries depend on Cloudflare D1.");
+}
 if (release && !origin) {
   throw new Error(
     "Release blocked: configure VITE_SITE_URL with the actual assigned HTTPS origin before setting RELEASE=true.",
@@ -52,6 +56,7 @@ if (release && !origin) {
 
 // Match the origin in client configuration, rendered content, and metadata.
 process.env.VITE_SITE_URL = origin;
+process.env.VITE_EMAIL_ONLY = vercelPreview ? "true" : "false";
 
 await build({ root, build: { outDir: "dist", emptyOutDir: true } });
 await build({
